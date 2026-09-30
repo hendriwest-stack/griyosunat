@@ -1,1 +1,441 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+  Booking Sunat | GriyoSunat
+</title>
+
+<link
+  rel="preconnect"
+  href="https://fonts.googleapis.com"
+>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<link
+  rel="stylesheet"
+  href="css/responsive.css"
+>
+
+</head>
+
+
+<body>
+
+
+<header class="site-header">
+
+<div class="container nav-container">
+
+<a
+  href="index.html"
+  class="logo"
+>
+
+<span class="logo-symbol">
+  ✦
+</span>
+
+<span>
+
+<strong>
+  GriyoSunat
+</strong>
+
+<small>
+  Amanah • Nyaman • Profesional
+</small>
+
+</span>
+
+</a>
+
+
+<button
+  class="menu-toggle"
+  id="menuToggle"
+>
+☰
+</button>
+
+
+<nav
+  class="main-nav"
+  id="mainNav"
+>
+
+<a href="index.html">
+Beranda
+</a>
+
+<a href="jadwal.html">
+Jadwal
+</a>
+
+<a href="metode.html">
+Metode
+</a>
+
+<a href="tentang.html">
+Tentang
+</a>
+
+<a href="faq.html">
+FAQ
+</a>
+
+<a href="kontak.html">
+Kontak
+</a>
+
+<a
+  href="booking.html"
+  class="nav-booking active"
+>
+Booking
+</a>
+
+</nav>
+
+</div>
+
+</header>
+
+
+<section class="page-hero">
+
+<div class="container">
+
+<span class="section-label">
+  BOOKING ONLINE
+</span>
+
+<h1>
+  Tentukan Jadwal Sunat
+</h1>
+
+<p>
+  Isi data berikut dengan benar.
+  Setelah booking berhasil, Anda akan
+  mendapatkan nomor booking.
+</p>
+
+</div>
+
+</section>
+
+
+<section class="page-section">
+
+<div class="container">
+
+
+<div
+  id="bookingMessage"
+  style="display:none;margin-bottom:20px;"
+>
+</div>
+
+
+<div
+  class="card"
+  style="
+    max-width:850px;
+    margin:auto;
+    padding:35px;
+  "
+>
+
+
+<form id="bookingForm">
+
+
+<div class="form-grid">
+
+
+<div class="form-group full">
+
+<label>
+  Pilih Tanggal
+</label>
+
+<input
+  type="date"
+  id="tanggal"
+  name="tanggal"
+  required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Pilih Jam
+</label>
+
+<select
+  id="jam"
+  name="jam"
+  required
+>
+
+<option value="">
+  Memuat jadwal...
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Metode Sunat
+</label>
+
+<select
+  id="metode"
+  name="metode"
+  required
+>
+
+<option value="">
+  Memuat metode...
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Nama Anak
+</label>
+
+<input
+  type="text"
+  id="nama_anak"
+  name="nama_anak"
+  placeholder="Nama lengkap anak"
+  required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Umur Anak
+</label>
+
+<input
+  type="text"
+  id="umur"
+  name="umur"
+  placeholder="Contoh: 7 tahun"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Nama Orang Tua
+</label>
+
+<input
+  type="text"
+  id="nama_orang_tua"
+  name="nama_orang_tua"
+  placeholder="Nama ayah / ibu"
+  required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+  Nomor WhatsApp
+</label>
+
+<input
+  type="tel"
+  id="whatsapp"
+  name="whatsapp"
+  placeholder="08xxxxxxxxxx"
+  required
+>
+
+</div>
+
+
+<div class="form-group full">
+
+<label>
+  Catatan
+</label>
+
+<textarea
+  id="catatan"
+  name="catatan"
+  placeholder="Tuliskan informasi tambahan jika diperlukan..."
+></textarea>
+
+</div>
+
+
+</div>
+
+
+<div
+  style="
+    margin-top:25px;
+    padding:15px;
+    background:#f4f8f6;
+    border-radius:12px;
+    font-size:11px;
+    color:#63736f;
+  "
+>
+
+<strong
+  style="color:#073b32;"
+>
+  ℹ️ Informasi
+</strong>
+
+<br>
+
+Pastikan nomor WhatsApp aktif karena
+nomor tersebut dapat digunakan untuk
+konfirmasi booking.
+
+</div>
+
+
+<button
+  type="submit"
+  id="bookingSubmit"
+  class="btn btn-primary"
+  style="
+    width:100%;
+    margin-top:20px;
+  "
+>
+  📅 Konfirmasi Booking
+</button>
+
+
+</form>
+
+
+<div
+  id="bookingSuccess"
+  style="display:none;"
+>
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+<footer class="footer">
+
+<div class="container footer-grid">
+
+<div>
+
+<div class="footer-logo">
+✦ GriyoSunat
+</div>
+
+<p>
+Layanan sunat anak dengan mengutamakan
+keamanan, kenyamanan dan pelayanan
+yang amanah.
+</p>
+
+</div>
+
+<div>
+
+<h4>
+Navigasi
+</h4>
+
+<a href="index.html">
+Beranda
+</a>
+
+<a href="jadwal.html">
+Jadwal
+</a>
+
+<a href="metode.html">
+Metode
+</a>
+
+</div>
+
+<div>
+
+<h4>
+Kontak
+</h4>
+
+<p>
+📍 Boyolali, Jawa Tengah
+</p>
+
+</div>
+
+</div>
+
+
+<div class="footer-bottom">
+© 2026 GriyoSunat.
+</div>
+
+</footer>
+
+
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+<script src="js/booking.js"></script>
+
+</body>
+
+</html>
+```
 
