@@ -5,11 +5,6 @@
 const API_URL =
   'https://script.google.com/macros/s/AKfycbzhYI25bbIqmCWVLur1ND9jbCTBdblMQp_xXGG89WK3srkLXOEUJp1Yp73Vw5b7iyynZQ/exec';
 
-
-/* =====================================================
-   INFORMASI WEBSITE
-===================================================== */
-
 const WHATSAPP_NUMBER =
   '6287885607666';
 
@@ -21,93 +16,50 @@ const SITE_LOCATION =
 
 
 /* =====================================================
-   CONFIG GLOBAL
-   Dibuat agar file lain yang menggunakan CONFIG
-   tetap kompatibel
+   API GET
 ===================================================== */
 
-const CONFIG = {
+async function apiGet(action, params = {}) {
 
-  API_URL:
-    API_URL,
+  const url = new URL(API_URL);
 
-  WHATSAPP:
-    WHATSAPP_NUMBER,
+  url.searchParams.set('action', action);
 
-  APP_NAME:
-    SITE_NAME,
+  Object.keys(params).forEach(key => {
 
-  LOCATION:
-    SITE_LOCATION
+    if (
+      params[key] !== undefined &&
+      params[key] !== null &&
+      params[key] !== ''
+    ) {
+      url.searchParams.set(
+        key,
+        params[key]
+      );
+    }
 
-};
+  });
 
-
-/* =====================================================
-   HELPER API GET
-===================================================== */
-
-async function apiGet(
-  action,
-  params = {}
-) {
-
-  const url =
-    new URL(API_URL);
-
-
-  url.searchParams.set(
-    'action',
-    action
-  );
-
-
-  Object.keys(params).forEach(
-    key => {
-
-      if (
-        params[key] !== undefined &&
-        params[key] !== null &&
-        params[key] !== ''
-      ) {
-
-        url.searchParams.set(
-          key,
-          params[key]
-        );
-
-      }
-
+  const response = await fetch(
+    url.toString(),
+    {
+      method: 'GET',
+      cache: 'no-store'
     }
   );
 
-
-  const response =
-    await fetch(
-      url.toString(),
-      {
-        method: 'GET',
-        cache: 'no-store'
-      }
-    );
-
-
   if (!response.ok) {
-
     throw new Error(
       'Server tidak dapat dihubungi'
     );
-
   }
 
-
   return await response.json();
-
 }
 
 
 /* =====================================================
-   HELPER API POST
+   API POST
 ===================================================== */
 
 async function apiPost(
@@ -115,46 +67,30 @@ async function apiPost(
   data = {}
 ) {
 
-  const payload = {
+  const response = await fetch(
+    API_URL,
+    {
+      method: 'POST',
 
-    action:
-      action,
+      headers: {
+        'Content-Type':
+          'text/plain;charset=utf-8'
+      },
 
-    ...data
-
-  };
-
-
-  const response =
-    await fetch(
-      API_URL,
-      {
-
-        method: 'POST',
-
-        headers: {
-          'Content-Type':
-            'text/plain;charset=utf-8'
-        },
-
-        body:
-          JSON.stringify(payload)
-
-      }
-    );
-
+      body: JSON.stringify({
+        action: action,
+        ...data
+      })
+    }
+  );
 
   if (!response.ok) {
-
     throw new Error(
       'Server tidak dapat dihubungi'
     );
-
   }
 
-
   return await response.json();
-
 }
 
 
@@ -162,26 +98,16 @@ async function apiPost(
    WHATSAPP
 ===================================================== */
 
-function openWhatsApp(
-  message = ''
-) {
+function openWhatsApp(message = '') {
 
   const encoded =
-    encodeURIComponent(
-      message
-    );
+    encodeURIComponent(message);
 
-
-  const url =
+  window.open(
     'https://wa.me/' +
     WHATSAPP_NUMBER +
     '?text=' +
-    encoded;
-
-
-  window.open(
-    url,
+    encoded,
     '_blank'
   );
-
 }
