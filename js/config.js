@@ -24,7 +24,7 @@ const SITE_NAME =
 /* Kota / lokasi */
 
 const SITE_LOCATION =
-  'Balaraja, Jawa Barat';
+  'Serang, Banten';
 
 
 /* =====================================================
