@@ -2,16 +2,41 @@
 /* =====================================================
    GRIYOSUNAT - MAIN JS
 ===================================================== */
+// =====================================================
+// API GET
+// =====================================================
+
 async function apiGet(action, params = {}) {
+
+    if (typeof CONFIG === "undefined") {
+        throw new Error("CONFIG belum dimuat. Periksa config.js");
+    }
+
+    if (!CONFIG.API_URL || CONFIG.API_URL.includes("GANTI_DENGAN")) {
+        throw new Error("URL Web App GAS belum diisi di config.js");
+    }
+
     const url = new URL(CONFIG.API_URL);
 
     url.searchParams.set("action", action);
 
     Object.keys(params).forEach(key => {
-        url.searchParams.set(key, params[key]);
+        if (
+            params[key] !== undefined &&
+            params[key] !== null &&
+            params[key] !== ""
+        ) {
+            url.searchParams.set(key, params[key]);
+        }
     });
 
     const response = await fetch(url.toString());
+
+    if (!response.ok) {
+        throw new Error(
+            "Server API gagal. HTTP " + response.status
+        );
+    }
 
     return await response.json();
 }
