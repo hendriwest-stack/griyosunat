@@ -1,4 +1,3 @@
-
 /* =====================================================
    GRIYOSUNAT - KONFIGURASI
 ===================================================== */
@@ -7,56 +6,80 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbzhYI25bbIqmCWVLur1ND9jbCTBdblMQp_xXGG89WK3srkLXOEUJp1Yp73Vw5b7iyynZQ/exec';
 
 
-/* Nomor WhatsApp GriyoSunat
-   Format internasional tanpa +
-   Contoh: 628123456789
-*/
+/* =====================================================
+   INFORMASI WEBSITE
+===================================================== */
+
 const WHATSAPP_NUMBER =
   '6287885607666';
 
-
-/* Nama website */
-
 const SITE_NAME =
   'GriyoSunat';
-
-
-/* Kota / lokasi */
 
 const SITE_LOCATION =
   'Serang, Banten';
 
 
 /* =====================================================
-   HELPER API
+   CONFIG GLOBAL
+   Dibuat agar file lain yang menggunakan CONFIG
+   tetap kompatibel
 ===================================================== */
 
-async function apiGet(action, params = {}) {
+const CONFIG = {
+
+  API_URL:
+    API_URL,
+
+  WHATSAPP:
+    WHATSAPP_NUMBER,
+
+  APP_NAME:
+    SITE_NAME,
+
+  LOCATION:
+    SITE_LOCATION
+
+};
+
+
+/* =====================================================
+   HELPER API GET
+===================================================== */
+
+async function apiGet(
+  action,
+  params = {}
+) {
 
   const url =
     new URL(API_URL);
+
 
   url.searchParams.set(
     'action',
     action
   );
 
-  Object.keys(params).forEach(key => {
 
-    if (
-      params[key] !== undefined &&
-      params[key] !== null &&
-      params[key] !== ''
-    ) {
+  Object.keys(params).forEach(
+    key => {
 
-      url.searchParams.set(
-        key,
-        params[key]
-      );
+      if (
+        params[key] !== undefined &&
+        params[key] !== null &&
+        params[key] !== ''
+      ) {
+
+        url.searchParams.set(
+          key,
+          params[key]
+        );
+
+      }
 
     }
-
-  });
+  );
 
 
   const response =
@@ -84,7 +107,7 @@ async function apiGet(action, params = {}) {
 
 
 /* =====================================================
-   POST API
+   HELPER API POST
 ===================================================== */
 
 async function apiPost(
@@ -139,7 +162,9 @@ async function apiPost(
    WHATSAPP
 ===================================================== */
 
-function openWhatsApp(message = '') {
+function openWhatsApp(
+  message = ''
+) {
 
   const encoded =
     encodeURIComponent(
@@ -160,5 +185,3 @@ function openWhatsApp(message = '') {
   );
 
 }
-
-
