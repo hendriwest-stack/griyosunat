@@ -96,38 +96,29 @@ function formatJam(jam) {
         return '-';
     }
 
-
     // Jika sudah HH:mm
     if (
         typeof jam === 'string' &&
         /^\d{1,2}:\d{2}/.test(jam)
     ) {
-
         return jam.substring(0, 5);
-
     }
 
+    // Jika Google Apps Script mengirim Date
+    const date = new Date(jam);
 
-    const date =
-        new Date(jam);
+    if (!isNaN(date.getTime())) {
 
+        const jamValue =
+            String(date.getHours()).padStart(2, '0');
 
-    if (
-        isNaN(date.getTime())
-    ) {
-        return jam;
+        const menitValue =
+            String(date.getMinutes()).padStart(2, '0');
+
+        return `${jamValue}:${menitValue}`;
     }
 
-
-    return new Intl.DateTimeFormat(
-        'id-ID',
-        {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        }
-    ).format(date);
-
+    return String(jam);
 }
 
 
@@ -259,11 +250,7 @@ function renderJadwal(item) {
         Number(item.TERISI || item.terisi || 0);
 
     const sisa =
-        Math.max(
-            kuota - terisi,
-            0
-        );
-
+        Math.max(kuota - terisi, 0);
 
     const status =
         String(
@@ -272,47 +259,38 @@ function renderJadwal(item) {
             ''
         ).toUpperCase();
 
-
     const penuh =
         status === 'PENUH' ||
         sisa <= 0;
-
 
     const tanggal =
         item.TANGGAL ||
         item.tanggal ||
         '';
 
-
     const jamMulai =
         item.JAM_MULAI ||
         item.jam_mulai ||
         '';
-
 
     const jamSelesai =
         item.JAM_SELESAI ||
         item.jam_selesai ||
         '';
 
-
     const idJadwal =
         item.ID_JADWAL ||
         item.id_jadwal ||
         '';
 
-
     return `
         <div class="schedule-card">
 
             <div class="schedule-date">
-
                 <div class="schedule-day">
                     ${formatTanggal(tanggal)}
                 </div>
-
             </div>
-
 
             <div class="schedule-info">
 
@@ -323,17 +301,13 @@ function renderJadwal(item) {
                     ${formatJam(jamSelesai)}
                 </div>
 
-
                 <div class="schedule-quota">
-
                     ${
                         penuh
                         ? 'Kuota penuh'
-                        : `Tersisa ${sisa} peserta`
+                        : `Tersedia ${sisa} slot`
                     }
-
                 </div>
-
 
                 ${
                     item.KETERANGAN ||
@@ -350,7 +324,6 @@ function renderJadwal(item) {
                 }
 
             </div>
-
 
             <div class="schedule-action">
 
