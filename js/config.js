@@ -4,7 +4,7 @@
 ===================================================== */
 
 const API_URL =
-  'GANTI_DENGAN_URL_WEB_APP_APPS_SCRIPT';
+  'https://script.google.com/macros/s/AKfycbzhYI25bbIqmCWVLur1ND9jbCTBdblMQp_xXGG89WK3srkLXOEUJp1Yp73Vw5b7iyynZQ/exec';
 
 
 /* Nomor WhatsApp GriyoSunat
@@ -12,7 +12,7 @@ const API_URL =
    Contoh: 628123456789
 */
 const WHATSAPP_NUMBER =
-  '628xxxxxxxxxx';
+  '6287885607666';
 
 
 /* Nama website */
@@ -24,7 +24,7 @@ const SITE_NAME =
 /* Kota / lokasi */
 
 const SITE_LOCATION =
-  'Boyolali, Jawa Tengah';
+  'Balaraja, Jawa Barat';
 
 
 /* =====================================================
