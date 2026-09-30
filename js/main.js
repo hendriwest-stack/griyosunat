@@ -274,4 +274,25 @@ function escapeHTML(
 
 }
 
+// =====================================================
+// WHATSAPP
+// =====================================================
 
+function openWhatsApp(message = "") {
+
+    if (typeof CONFIG === "undefined") {
+        alert("CONFIG belum dimuat.");
+        return;
+    }
+
+    const nomor = CONFIG.WHATSAPP;
+
+    const text = encodeURIComponent(
+        message || "Assalamu'alaikum, saya ingin bertanya tentang layanan GriyoSunat."
+    );
+
+    window.open(
+        `https://wa.me/${nomor}?text=${text}`,
+        "_blank"
+    );
+}
