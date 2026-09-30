@@ -1,6 +1,8 @@
 /* =====================================================
-   GRIYOSUNAT - JADWAL.JS
+   GRIYOSUNAT - JADWAL
 ===================================================== */
+
+const API_TIMEOUT = 15000;
 
 
 /* =====================================================
@@ -9,75 +11,88 @@
 
 function formatTanggal(tanggal) {
 
-    if (
-        tanggal === null ||
-        tanggal === undefined ||
-        tanggal === ''
-    ) {
+    if (!tanggal) {
         return '-';
     }
 
+    const text = String(tanggal).trim();
 
     let date;
 
+    // yyyy-MM-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
 
-    // Format Google Sheet: YYYY-MM-DD
-    if (
-        typeof tanggal === 'string' &&
-        /^\d{4}-\d{2}-\d{2}$/.test(tanggal)
-    ) {
-
-        const bagian =
-            tanggal.split('-');
+        const parts = text.split('-');
 
         date = new Date(
-            Number(bagian[0]),
-            Number(bagian[1]) - 1,
-            Number(bagian[2])
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2])
         );
 
     }
 
-    // Format DD/MM/YYYY
-    else if (
-        typeof tanggal === 'string' &&
-        /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(tanggal)
-    ) {
+    // dd/MM/yyyy
+    else if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(text)) {
 
-        const bagian =
-            tanggal.split('/');
+        const parts = text.split('/');
 
         date = new Date(
-            Number(bagian[2]),
-            Number(bagian[1]) - 1,
-            Number(bagian[0])
+            Number(parts[2]),
+            Number(parts[1]) - 1,
+            Number(parts[0])
         );
 
     }
 
     else {
 
-        date = new Date(tanggal);
+        date = new Date(text);
 
     }
 
 
-    if (
-        isNaN(date.getTime())
-    ) {
-        return tanggal;
+    if (isNaN(date.getTime())) {
+        return text;
     }
 
 
-    return new Intl.DateTimeFormat(
-        'id-ID',
-        {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-        }
-    ).format(date);
+    const hari = [
+        'Minggu',
+        'Senin',
+        'Selasa',
+        'Rabu',
+        'Kamis',
+        'Jumat',
+        'Sabtu'
+    ];
+
+
+    const bulan = [
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    ];
+
+
+    return (
+        hari[date.getDay()] +
+        ', ' +
+        date.getDate() +
+        ' ' +
+        bulan[date.getMonth()] +
+        ' ' +
+        date.getFullYear()
+    );
 
 }
 
@@ -93,32 +108,275 @@ function formatJam(jam) {
         jam === undefined ||
         jam === ''
     ) {
+
         return '-';
+
     }
 
-    // Jika sudah HH:mm
+
+    const text =
+        String(jam).trim();
+
+
+    /*
+     * Sudah HH:mm
+     */
+
+    const match =
+        text.match(
+            /^(\d{1,2}):(\d{2})/
+        );
+
+
+    if (match) {
+
+        return (
+            String(match[1])
+                .padStart(2, '0')
+            +
+            ':' +
+            match[2]
+        );
+
+    }
+
+
+    /*
+     * Jika backend masih mengirim
+     * bentuk Date string
+     */
+
+    const date =
+        new Date(text);
+
+
     if (
-        typeof jam === 'string' &&
-        /^\d{1,2}:\d{2}/.test(jam)
+        !isNaN(
+            date.getTime()
+        )
     ) {
-        return jam.substring(0, 5);
+
+        return (
+            String(
+                date.getHours()
+            ).padStart(2, '0')
+            +
+            ':' +
+            String(
+                date.getMinutes()
+            ).padStart(2, '0')
+        );
+
     }
 
-    // Jika Google Apps Script mengirim Date
-    const date = new Date(jam);
 
-    if (!isNaN(date.getTime())) {
+    return text;
 
-        const jamValue =
-            String(date.getHours()).padStart(2, '0');
+}
 
-        const menitValue =
-            String(date.getMinutes()).padStart(2, '0');
 
-        return `${jamValue}:${menitValue}`;
+/* =====================================================
+   GET ELEMENT
+===================================================== */
+
+function getJadwalContainer() {
+
+    return (
+        document.getElementById(
+            'jadwalContainer'
+        )
+        ||
+        document.getElementById(
+            'jadwal-list'
+        )
+        ||
+        document.getElementById(
+            'jadwalList'
+        )
+    );
+
+}
+
+
+/* =====================================================
+   LOADING
+===================================================== */
+
+function tampilkanLoading() {
+
+    const container =
+        getJadwalContainer();
+
+
+    if (!container) {
+        return;
     }
 
-    return String(jam);
+
+    container.innerHTML = `
+
+        <div class="jadwal-loading">
+
+            <div class="loading-spinner"></div>
+
+            <div>
+                Memuat jadwal...
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+function tampilkanError(
+    message
+) {
+
+    const container =
+        getJadwalContainer();
+
+
+    if (!container) {
+        return;
+    }
+
+
+    container.innerHTML = `
+
+        <div class="jadwal-error">
+
+            <div class="error-icon">
+                !
+            </div>
+
+            <h3>
+                Jadwal belum dapat dimuat
+            </h3>
+
+            <p>
+                ${escapeHTML(
+                    message ||
+                    'Terjadi kesalahan saat mengambil data jadwal.'
+                )}
+            </p>
+
+            <button
+                type="button"
+                onclick="loadJadwal()"
+                class="btn-retry"
+            >
+                Coba Lagi
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(
+    text
+) {
+
+    return String(text || '')
+        .replace(
+            /&/g,
+            '&amp;'
+        )
+        .replace(
+            /</g,
+            '&lt;'
+        )
+        .replace(
+            />/g,
+            '&gt;'
+        )
+        .replace(
+            /"/g,
+            '&quot;'
+        )
+        .replace(
+            /'/g,
+            '&#039;'
+        );
+
+}
+
+
+/* =====================================================
+   FETCH DENGAN TIMEOUT
+===================================================== */
+
+async function fetchDenganTimeout(
+    url,
+    timeout = 15000
+) {
+
+    const controller =
+        new AbortController();
+
+
+    const timer =
+        setTimeout(
+            function() {
+
+                controller.abort();
+
+            },
+            timeout
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                url,
+                {
+                    method: 'GET',
+                    cache: 'no-store',
+                    signal:
+                        controller.signal
+                }
+            );
+
+
+        clearTimeout(timer);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                'Server mengembalikan HTTP ' +
+                response.status
+            );
+
+        }
+
+
+        return response;
+
+    }
+
+    catch (error) {
+
+        clearTimeout(timer);
+
+        throw error;
+
+    }
+
 }
 
 
@@ -129,108 +387,198 @@ function formatJam(jam) {
 async function loadJadwal() {
 
     const container =
-        document.getElementById(
-            'jadwalContainer'
-        );
+        getJadwalContainer();
 
 
     if (!container) {
+
         console.error(
-            'Elemen #jadwalContainer tidak ditemukan.'
+            'Elemen jadwalContainer tidak ditemukan'
         );
+
         return;
+
     }
 
 
-    container.innerHTML = `
-        <div class="loading">
-            Memuat jadwal...
-        </div>
-    `;
+    tampilkanLoading();
 
 
     try {
 
-        const result =
-            await apiGet('jadwal');
-
-
-        console.log(
-            'DATA JADWAL:',
-            result
-        );
-
+        /*
+         * Pastikan API_URL tersedia
+         */
 
         if (
-            !result ||
-            !result.success
+            typeof API_URL ===
+            'undefined'
         ) {
 
             throw new Error(
-                result?.message ||
-                'Data jadwal tidak tersedia.'
+                'API_URL belum tersedia. Pastikan config.js dimuat sebelum jadwal.js.'
             );
 
         }
 
 
-        const data =
-            result.data || [];
+        console.log(
+            'Mengambil jadwal dari:',
+            API_URL
+        );
 
+
+        const url =
+            new URL(API_URL);
+
+
+        url.searchParams.set(
+            'action',
+            'jadwal'
+        );
+
+
+        /*
+         * Request ke GAS
+         */
+
+        const response =
+            await fetchDenganTimeout(
+                url.toString(),
+                API_TIMEOUT
+            );
+
+
+        /*
+         * Ambil JSON
+         */
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            'Response jadwal:',
+            result
+        );
+
+
+        /*
+         * Validasi response
+         */
 
         if (
-            data.length === 0
+            !result ||
+            result.success !== true
         ) {
 
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">📅</div>
-                    <h3>Belum Ada Jadwal</h3>
-                    <p>
-                        Jadwal sunat belum tersedia.
-                        Silakan hubungi GriyoSunat melalui WhatsApp.
-                    </p>
-                    <button
-                        class="btn btn-primary"
-                        onclick="openWhatsApp()"
-                    >
-                        Hubungi WhatsApp
-                    </button>
-                </div>
-            `;
+            throw new Error(
+                result &&
+                result.message
+                    ? result.message
+                    : 'Response API tidak valid'
+            );
 
-            return;
         }
 
 
-        container.innerHTML =
-            data.map(
-                item => renderJadwal(item)
-            ).join('');
+        /*
+         * Pastikan data array
+         */
+
+        if (
+            !Array.isArray(
+                result.data
+            )
+        ) {
+
+            throw new Error(
+                'Format data jadwal dari server tidak valid'
+            );
+
+        }
 
 
-    } catch (error) {
+        /*
+         * Tidak ada jadwal
+         */
+
+        if (
+            result.data.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="jadwal-empty">
+
+                    <div class="empty-icon">
+                        📅
+                    </div>
+
+                    <h3>
+                        Belum Ada Jadwal
+                    </h3>
+
+                    <p>
+                        Saat ini belum tersedia
+                        jadwal sunat.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /*
+         * Render
+         */
+
+        renderJadwal(
+            result.data
+        );
+
+
+    }
+
+    catch (error) {
 
         console.error(
-            'ERROR JADWAL:',
+            'Gagal memuat jadwal:',
             error
         );
 
 
-        container.innerHTML = `
-            <div class="error-box">
-                <h3>Jadwal belum dapat dimuat</h3>
-                <p>
-                    ${escapeHTML(error.message)}
-                </p>
-                <button
-                    class="btn btn-primary"
-                    onclick="loadJadwal()"
-                >
-                    Coba Lagi
-                </button>
-            </div>
-        `;
+        let message =
+            'Tidak dapat mengambil data jadwal.';
+
+
+        if (
+            error.name ===
+            'AbortError'
+        ) {
+
+            message =
+                'Server terlalu lama merespons. Silakan coba lagi.';
+
+        }
+
+        else if (
+            error.message
+        ) {
+
+            message =
+                error.message;
+
+        }
+
+
+        tampilkanError(
+            message
+        );
 
     }
 
@@ -241,128 +589,355 @@ async function loadJadwal() {
    RENDER JADWAL
 ===================================================== */
 
-function renderJadwal(item) {
+function renderJadwal(
+    data
+) {
 
-    const kuota =
-        Number(item.KUOTA || item.kuota || 0);
+    const container =
+        getJadwalContainer();
 
-    const terisi =
-        Number(item.TERISI || item.terisi || 0);
 
-    const sisa =
-        Math.max(kuota - terisi, 0);
+    if (!container) {
+        return;
+    }
 
-    const status =
-        String(
-            item.STATUS ||
-            item.status ||
-            ''
-        ).toUpperCase();
 
-    const penuh =
-        status === 'PENUH' ||
-        sisa <= 0;
+    /*
+     * Kelompokkan berdasarkan tanggal
+     */
 
-    const tanggal =
-        item.TANGGAL ||
-        item.tanggal ||
-        '';
+    const groups = {};
 
-    const jamMulai =
-        item.JAM_MULAI ||
-        item.jam_mulai ||
-        '';
 
-    const jamSelesai =
-        item.JAM_SELESAI ||
-        item.jam_selesai ||
-        '';
+    data.forEach(
+        function(item) {
 
-    const idJadwal =
-        item.ID_JADWAL ||
-        item.id_jadwal ||
-        '';
+            const tanggal =
+                item.tanggal || '';
 
-    return `
-        <div class="schedule-card">
 
-            <div class="schedule-date">
-                <div class="schedule-day">
-                    ${formatTanggal(tanggal)}
-                </div>
-            </div>
+            if (
+                !groups[tanggal]
+            ) {
 
-            <div class="schedule-info">
+                groups[tanggal] = [];
 
-                <div class="schedule-time">
-                    🕐
-                    ${formatJam(jamMulai)}
-                    -
-                    ${formatJam(jamSelesai)}
-                </div>
+            }
 
-                <div class="schedule-quota">
-                    ${
-                        penuh
-                        ? 'Kuota penuh'
-                        : `Tersedia ${sisa} slot`
-                    }
-                </div>
 
-                ${
-                    item.KETERANGAN ||
-                    item.keterangan
-                    ? `
-                        <div class="schedule-note">
-                            ${escapeHTML(
-                                item.KETERANGAN ||
-                                item.keterangan
-                            )}
+            groups[tanggal].push(
+                item
+            );
+
+        }
+    );
+
+
+    let html = '';
+
+
+    Object.keys(groups)
+        .sort()
+        .forEach(
+            function(tanggal) {
+
+                const items =
+                    groups[tanggal];
+
+
+                html += `
+
+                    <section
+                        class="jadwal-group"
+                    >
+
+                        <div
+                            class="jadwal-date-header"
+                        >
+
+                            <div>
+
+                                <span
+                                    class="jadwal-label"
+                                >
+                                    Jadwal Sunat
+                                </span>
+
+                                <h3>
+                                    ${escapeHTML(
+                                        formatTanggal(
+                                            tanggal
+                                        )
+                                    )}
+                                </h3>
+
+                            </div>
+
                         </div>
-                    `
-                    : ''
-                }
 
-            </div>
-
-            <div class="schedule-action">
-
-                ${
-                    penuh
-
-                    ? `
-                        <button
-                            class="btn btn-disabled"
-                            disabled
+                        <div
+                            class="jadwal-grid"
                         >
-                            Penuh
-                        </button>
-                    `
+                `;
 
-                    : `
-                        <a
-                            href="booking.html?jadwal=${encodeURIComponent(idJadwal)}"
-                            class="btn btn-primary"
-                        >
-                            Booking
-                        </a>
-                    `
-                }
 
-            </div>
+                items.forEach(
+                    function(item) {
 
-        </div>
-    `;
+                        html +=
+                            renderSlot(
+                                item
+                            );
+
+                    }
+                );
+
+
+                html += `
+
+                        </div>
+
+                    </section>
+
+                `;
+
+            }
+        );
+
+
+    container.innerHTML =
+        html;
+
 }
 
 
 /* =====================================================
-   JALANKAN SAAT HALAMAN SIAP
+   RENDER SLOT
+===================================================== */
+
+function renderSlot(
+    item
+) {
+
+    const status =
+        String(
+            item.status ||
+            'TERSEDIA'
+        )
+            .trim()
+            .toUpperCase();
+
+
+    let statusClass =
+        'tersedia';
+
+
+    let statusText =
+        'Tersedia';
+
+
+    let buttonDisabled =
+        '';
+
+
+    if (
+        status ===
+        'PENUH'
+    ) {
+
+        statusClass =
+            'penuh';
+
+        statusText =
+            'Penuh';
+
+        buttonDisabled =
+            'disabled';
+
+    }
+
+    else if (
+        status ===
+        'TERBATAS'
+    ) {
+
+        statusClass =
+            'terbatas';
+
+        statusText =
+            'Terbatas';
+
+    }
+
+
+    const jamMulai =
+        formatJam(
+            item.jam_mulai ||
+            item.jam
+        );
+
+
+    const jamSelesai =
+        formatJam(
+            item.jam_selesai
+        );
+
+
+    let waktu =
+        jamMulai;
+
+
+    if (
+        jamSelesai &&
+        jamSelesai !== '-'
+    ) {
+
+        waktu +=
+            ' - ' +
+            jamSelesai;
+
+    }
+
+
+    const tersisa =
+        Number(
+            item.tersisa || 0
+        );
+
+
+    return `
+
+        <div
+            class="jadwal-card ${statusClass}"
+        >
+
+            <div
+                class="jadwal-time"
+            >
+
+                ${escapeHTML(
+                    waktu
+                )}
+
+            </div>
+
+
+            <div
+                class="jadwal-status ${statusClass}"
+            >
+
+                ${escapeHTML(
+                    statusText
+                )}
+
+            </div>
+
+
+            <div
+                class="jadwal-kuota"
+            >
+
+                ${tersisa}
+                slot tersedia
+
+            </div>
+
+
+            <button
+                type="button"
+                class="jadwal-booking-btn"
+                ${buttonDisabled}
+                onclick="pilihJadwal(
+                    '${escapeHTML(
+                        item.id_jadwal ||
+                        item.id ||
+                        ''
+                    )}',
+                    '${escapeHTML(
+                        item.tanggal ||
+                        ''
+                    )}',
+                    '${escapeHTML(
+                        jamMulai
+                    )}'
+                )"
+            >
+
+                ${
+                    status === 'PENUH'
+                        ? 'Sudah Penuh'
+                        : 'Pilih Jadwal'
+                }
+
+            </button>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   PILIH JADWAL
+===================================================== */
+
+function pilihJadwal(
+    id,
+    tanggal,
+    jam
+) {
+
+    /*
+     * Simpan pilihan
+     */
+
+    try {
+
+        sessionStorage.setItem(
+            'griyosunat_jadwal',
+            JSON.stringify({
+
+                id:
+                    id,
+
+                tanggal:
+                    tanggal,
+
+                jam:
+                    jam
+
+            })
+        );
+
+    }
+    catch (error) {
+
+        console.warn(
+            'sessionStorage tidak tersedia',
+            error
+        );
+
+    }
+
+
+    /*
+     * Pindah ke booking
+     */
+
+    window.location.href =
+        'booking.html';
+
+}
+
+
+/* =====================================================
+   INIT
 ===================================================== */
 
 document.addEventListener(
     'DOMContentLoaded',
-    function () {
+    function() {
 
         loadJadwal();
 
