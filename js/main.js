@@ -1,192 +1,193 @@
-
 /* =====================================================
-   GRIYOSUNAT - MAIN JS
+   GRIYOSUNAT - MAIN.JS
 ===================================================== */
-// =====================================================
-// API GET
-// =====================================================
-
-async function apiGet(action, params = {}) {
-
-    if (typeof CONFIG === "undefined") {
-        throw new Error("CONFIG belum dimuat. Periksa config.js");
-    }
-
-    if (!CONFIG.API_URL || CONFIG.API_URL.includes("GANTI_DENGAN")) {
-        throw new Error("URL Web App GAS belum diisi di config.js");
-    }
-
-    const url = new URL(CONFIG.API_URL);
-
-    url.searchParams.set("action", action);
-
-    Object.keys(params).forEach(key => {
-        if (
-            params[key] !== undefined &&
-            params[key] !== null &&
-            params[key] !== ""
-        ) {
-            url.searchParams.set(key, params[key]);
-        }
-    });
-
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-        throw new Error(
-            "Server API gagal. HTTP " + response.status
-        );
-    }
-
-    return await response.json();
-}
-
-/* =====================================================
-   MOBILE MENU
-===================================================== */
-
-document.addEventListener(
-  'DOMContentLoaded',
-  function () {
-
-    const toggle =
-      document.getElementById(
-        'menuToggle'
-      );
-
-    const nav =
-      document.getElementById(
-        'mainNav'
-      );
-
-
-    if (
-      toggle &&
-      nav
-    ) {
-
-      toggle.addEventListener(
-        'click',
-        function () {
-
-          nav.classList.toggle(
-            'show'
-          );
-
-        }
-      );
-
-
-      nav.querySelectorAll('a')
-        .forEach(link => {
-
-          link.addEventListener(
-            'click',
-            function () {
-
-              nav.classList.remove(
-                'show'
-              );
-
-            }
-          );
-
-        });
-
-    }
-
-  }
-);
 
 
 /* =====================================================
-   SET ACTIVE MENU
+   CEK KONFIGURASI
 ===================================================== */
 
-document.addEventListener(
-  'DOMContentLoaded',
-  function () {
-
-    const current =
-      window.location.pathname
-        .split('/')
-        .pop()
-        || 'index.html';
-
-
-    document
-      .querySelectorAll(
-        '.main-nav a'
-      )
-      .forEach(link => {
-
-        const href =
-          link
-            .getAttribute('href')
-            .split('/')
-            .pop();
-
-
-        if (
-          href === current
-        ) {
-
-          link.classList.add(
-            'active'
-          );
-
-        }
-
-      });
-
-  }
-);
-
-
-/* =====================================================
-   DATE FORMAT
-===================================================== */
-
-function formatTanggal(
-  tanggal
-) {
-
-  if (!tanggal) {
-
-    return '-';
-
-  }
-
-
-  const parts =
-    tanggal.split('-');
-
+function getApiUrl() {
 
   if (
-    parts.length !== 3
+    typeof API_URL === 'undefined' ||
+    !API_URL
   ) {
 
-    return tanggal;
+    throw new Error(
+      'API_URL belum dimuat. Pastikan js/config.js dipanggil sebelum main.js.'
+    );
 
   }
 
+  return API_URL;
 
-  const date =
-    new Date(
-      Number(parts[0]),
-      Number(parts[1]) - 1,
-      Number(parts[2])
+}
+
+
+/* =====================================================
+   API GET
+===================================================== */
+
+async function apiGet(
+  action,
+  params = {}
+) {
+
+  const apiUrl =
+    getApiUrl();
+
+
+  const url =
+    new URL(apiUrl);
+
+
+  url.searchParams.set(
+    'action',
+    action
+  );
+
+
+  Object.keys(params).forEach(
+    key => {
+
+      const value =
+        params[key];
+
+      if (
+        value !== undefined &&
+        value !== null &&
+        value !== ''
+      ) {
+
+        url.searchParams.set(
+          key,
+          value
+        );
+
+      }
+
+    }
+  );
+
+
+  const response =
+    await fetch(
+      url.toString(),
+      {
+        method: 'GET',
+        cache: 'no-store'
+      }
     );
 
 
-  return date.toLocaleDateString(
-    'id-ID',
-    {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    }
+  if (!response.ok) {
+
+    throw new Error(
+      'Server tidak dapat dihubungi. HTTP ' +
+      response.status
+    );
+
+  }
+
+
+  const result =
+    await response.json();
+
+
+  return result;
+
+}
+
+
+/* =====================================================
+   API POST
+===================================================== */
+
+async function apiPost(
+  action,
+  data = {}
+) {
+
+  const apiUrl =
+    getApiUrl();
+
+
+  const payload = {
+
+    action:
+      action,
+
+    ...data
+
+  };
+
+
+  const response =
+    await fetch(
+      apiUrl,
+      {
+
+        method: 'POST',
+
+        headers: {
+          'Content-Type':
+            'text/plain;charset=utf-8'
+        },
+
+        body:
+          JSON.stringify(payload)
+
+      }
+    );
+
+
+  if (!response.ok) {
+
+    throw new Error(
+      'Server tidak dapat dihubungi. HTTP ' +
+      response.status
+    );
+
+  }
+
+
+  return await response.json();
+
+}
+
+
+/* =====================================================
+   WHATSAPP
+===================================================== */
+
+function openWhatsApp(
+  message = ''
+) {
+
+  const nomor =
+    typeof WHATSAPP_NUMBER !== 'undefined'
+      ? WHATSAPP_NUMBER
+      : '6287885607666';
+
+
+  const pesan =
+    encodeURIComponent(
+      message ||
+      'Assalamu\'alaikum, saya ingin bertanya tentang layanan GriyoSunat.'
+    );
+
+
+  const url =
+    'https://wa.me/' +
+    nomor +
+    '?text=' +
+    pesan;
+
+
+  window.open(
+    url,
+    '_blank'
   );
 
 }
@@ -197,13 +198,13 @@ function formatTanggal(
 ===================================================== */
 
 function formatRupiah(
-  value
+  angka
 ) {
 
   if (
-    value === '' ||
-    value === null ||
-    value === undefined
+    angka === null ||
+    angka === undefined ||
+    angka === ''
   ) {
 
     return '-';
@@ -211,19 +212,18 @@ function formatRupiah(
   }
 
 
-  const number =
+  const nilai =
     Number(
-      String(value)
-        .replace(
-          /[^0-9]/g,
-          ''
-        )
+      String(angka)
+        .replace(/[^\d]/g, '')
     );
 
 
-  if (isNaN(number)) {
+  if (
+    isNaN(nilai)
+  ) {
 
-    return value;
+    return '-';
 
   }
 
@@ -231,11 +231,16 @@ function formatRupiah(
   return new Intl.NumberFormat(
     'id-ID',
     {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0
+      style:
+        'currency',
+
+      currency:
+        'IDR',
+
+      minimumFractionDigits:
+        0
     }
-  ).format(number);
+  ).format(nilai);
 
 }
 
@@ -248,51 +253,59 @@ function escapeHTML(
   value
 ) {
 
-  return String(
-    value ?? ''
-  )
-  .replace(
-    /&/g,
-    '&amp;'
-  )
-  .replace(
-    /</g,
-    '&lt;'
-  )
-  .replace(
-    />/g,
-    '&gt;'
-  )
-  .replace(
-    /"/g,
-    '&quot;'
-  )
-  .replace(
-    /'/g,
-    '&#039;'
-  );
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return '';
+
+  }
+
+
+  return String(value)
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+    .replace(
+      /</g,
+      '&lt;'
+    )
+    .replace(
+      />/g,
+      '&gt;'
+    )
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+    .replace(
+      /'/g,
+      '&#039;'
+    );
 
 }
 
-// =====================================================
-// WHATSAPP
-// =====================================================
 
-function openWhatsApp(message = "") {
+/* =====================================================
+   DOCUMENT READY
+===================================================== */
 
-    if (typeof CONFIG === "undefined") {
-        alert("CONFIG belum dimuat.");
-        return;
-    }
+document.addEventListener(
+  'DOMContentLoaded',
+  () => {
 
-    const nomor = CONFIG.WHATSAPP;
-
-    const text = encodeURIComponent(
-        message || "Assalamu'alaikum, saya ingin bertanya tentang layanan GriyoSunat."
+    console.log(
+      'GriyoSunat siap.'
     );
 
-    window.open(
-        `https://wa.me/${nomor}?text=${text}`,
-        "_blank"
+    console.log(
+      'API:',
+      typeof API_URL !== 'undefined'
+        ? 'TERHUBUNG'
+        : 'TIDAK TERSEDIA'
     );
-}
+
+  }
+);
