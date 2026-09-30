@@ -2,7 +2,19 @@
 /* =====================================================
    GRIYOSUNAT - MAIN JS
 ===================================================== */
+async function apiGet(action, params = {}) {
+    const url = new URL(CONFIG.API_URL);
 
+    url.searchParams.set("action", action);
+
+    Object.keys(params).forEach(key => {
+        url.searchParams.set(key, params[key]);
+    });
+
+    const response = await fetch(url.toString());
+
+    return await response.json();
+}
 
 /* =====================================================
    MOBILE MENU
