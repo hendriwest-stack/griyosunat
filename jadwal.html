@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jadwal | GriyoSunat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-container">
+    <a class="logo" href="index.html">GriyoSunat<small>Amanah • Nyaman • Profesional</small></a>
+    <button id="menuToggle" class="menu-toggle" aria-label="Menu">☰</button>
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html">Beranda</a>
+      <a href="jadwal.html">Jadwal</a>
+      <a href="metode.html">Metode</a>
+      <a href="cek-booking.html">Cek Booking</a>
+      <a class="nav-booking" href="booking.html">Booking</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section alt">
+  <div class="container">
+    <div class="section-heading">
+      <h1>Jadwal Sunat</h1>
+      <p>Jadwal di bawah ini diambil langsung dari Google Sheets.</p>
+    </div>
+    <div id="jadwalContainer"></div>
+  </div>
+</main>
+
+<footer class="footer"><div class="container footer-inner"><div>© 2026 GriyoSunat</div><button class="btn btn-outline" onclick="openWhatsApp()">WhatsApp</button></div></footer>
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+<script src="js/jadwal.js"></script>
+</body>
+</html>

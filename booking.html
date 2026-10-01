@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Booking | GriyoSunat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-container">
+    <a class="logo" href="index.html">GriyoSunat<small>Amanah • Nyaman • Profesional</small></a>
+    <button id="menuToggle" class="menu-toggle" aria-label="Menu">☰</button>
+    <nav id="mainNav" class="main-nav">
+      <a href="index.html">Beranda</a>
+      <a href="jadwal.html">Jadwal</a>
+      <a href="metode.html">Metode</a>
+      <a href="cek-booking.html">Cek Booking</a>
+      <a class="nav-booking" href="booking.html">Booking</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section alt">
+  <div class="container">
+    <div class="section-heading">
+      <h1>Booking Sunat</h1>
+      <p>Pilih jadwal dan lengkapi data pasien.</p>
+    </div>
+
+    <form id="bookingForm" class="form-card">
+      <div class="form-grid">
+        <div class="field">
+          <label>Nama Anak</label>
+          <input name="nama_anak" required>
+        </div>
+        <div class="field">
+          <label>Umur</label>
+          <input name="umur">
+        </div>
+        <div class="field">
+          <label>Nama Orang Tua</label>
+          <input name="nama_orang_tua" required>
+        </div>
+        <div class="field">
+          <label>WhatsApp</label>
+          <input name="whatsapp" inputmode="tel" required>
+        </div>
+        <div class="field">
+          <label>Tanggal</label>
+          <input id="tanggal" name="tanggal" type="date" required>
+        </div>
+        <div class="field">
+          <label>Jam</label>
+          <select id="jam" name="jam" required>
+            <option value="">Pilih tanggal terlebih dahulu</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Metode</label>
+          <select id="metode" name="metode" required>
+            <option value="">Memuat metode...</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Catatan</label>
+          <textarea name="catatan"></textarea>
+        </div>
+      </div>
+      <div id="bookingMessage"></div>
+      <button id="bookingSubmit" class="btn btn-primary" type="submit">Konfirmasi Booking</button>
+    </form>
+
+    <div id="bookingSuccess" class="form-card" style="display:none"></div>
+  </div>
+</main>
+
+<footer class="footer"><div class="container footer-inner"><div>© 2026 GriyoSunat</div><button class="btn btn-outline" onclick="openWhatsApp()">WhatsApp</button></div></footer>
+<script src="js/config.js"></script>
+<script src="js/main.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>
